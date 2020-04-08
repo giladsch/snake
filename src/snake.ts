@@ -19,28 +19,26 @@ export class Snake {
     context.fillStyle = "#29a050";
     this.tailParts.forEach((tailPart) => tailPart.draw(context));
   }
+
   move(maxX: number, maxY: number): boolean {
-    // let xMove = 0,
-    //   yMove = 0;
-    // switch (this.direction) {
-    //   case Direction.UP:
-    //     yMove = -1;
-    //     break;
-    //   case Direction.DOWN:
-    //     yMove = 1;
-    //     break;
-    //   case Direction.RIGHT:
-    //     xMove = 1;
-    //     break;
-    //   case Direction.LEFT:
-    //     xMove = -1;
-    //     break;
-    // }
+    let x = this.head.x;
+    let y = this.head.y;
+    let detectCollision = false;
 
-    const { xMove, yMove } = this.getMovesByDirection(this.direction);
-
-    this.head.x += xMove;
-    this.head.y += yMove;
+    switch (this.direction) {
+      case Direction.UP:
+        this.head.y -= 1;
+        break;
+      case Direction.DOWN:
+        this.head.y += 1;
+        break;
+      case Direction.RIGHT:
+        this.head.x += 1;
+        break;
+      case Direction.LEFT:
+        this.head.x -= 1;
+        break;
+    }
 
     if (this.head.x < 0) {
       this.head.x = maxX;
@@ -59,34 +57,23 @@ export class Snake {
     }
 
     this.tailParts.forEach((tailPart) => {
-      tailPart.x += xMove;
-      tailPart.y += yMove;
+      const xtmp = tailPart.x;
+      const ytmp = tailPart.y;
+
+      tailPart.set(x, y);
+
+      if (tailPart.equals(this.head)) {
+        detectCollision = true;
+      }
+
+      x = xtmp;
+      y = ytmp;
     });
 
-    return false;
-  }
-  eat(food: Food) {
-    debugger;
-    this.tailParts.push(food.position);
+    return detectCollision;
   }
 
-  getMovesByDirection(direction: Direction) {
-    let xMove = 0,
-      yMove = 0;
-    switch (direction) {
-      case Direction.UP:
-        yMove = -1;
-        break;
-      case Direction.DOWN:
-        yMove = 1;
-        break;
-      case Direction.RIGHT:
-        xMove = 1;
-        break;
-      case Direction.LEFT:
-        xMove = -1;
-        break;
-    }
-    return { xMove: xMove, yMove: yMove };
+  eat(food: Food) {
+    this.tailParts.push(food.position);
   }
 }

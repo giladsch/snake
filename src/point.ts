@@ -14,6 +14,11 @@ export class Point {
     context.fillRect(this.x * scale, this.y * scale, scale, scale);
   }
 
+  set(newX: number, newY: number) {
+    this.x = newX;
+    this.y = newY;
+  }
+
   equals(other: Point): boolean {
     return this.x === other.x && this.y === other.y;
   }

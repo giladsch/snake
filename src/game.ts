@@ -16,11 +16,12 @@ export const settings: GameSettings = {
 export default class Game {
   private context: CanvasRenderingContext2D;
   private settings: GameSettings;
+  private scoreElement: HTMLElement;
 
   private snake: Snake;
   private food: Food;
   private timestamp?: number = 0;
-
+  private isGameOver = false;
   private nextKey: number | null = null;
 
   private _score: number = 0;
@@ -28,6 +29,7 @@ export default class Game {
   constructor(canvas: HTMLCanvasElement) {
     this.context = canvas.getContext("2d");
     this.settings = settings;
+    this.scoreElement = document.getElementById("score") as HTMLElement;
 
     this.snake = new Snake(new Point(0, 0));
   }
@@ -35,10 +37,22 @@ export default class Game {
   start(): void {
     this.canvas.width = this.settings.width * this.settings.scale;
     this.canvas.height = this.settings.height * this.settings.scale;
+    this.scoreElement.innerHTML = "0";
 
     this.attachKeyboard();
     this.placeFood();
     this.update();
+  }
+
+  restart() {
+    this.snake = new Snake(new Point(0, 0));
+    this._score = 0;
+    this.timestamp = 0;
+    this.food = null;
+    this.nextKey = null;
+    this.isGameOver = false;
+
+    this.start();
   }
 
   private placeFood(): void {
@@ -51,6 +65,9 @@ export default class Game {
   private attachKeyboard(): void {
     document.addEventListener("keydown", (e) => {
       if (this.nextKey == null || this.nextKey != e.keyCode) {
+        if (this.isGameOver && (e.keyCode === Keys.ENTER || e.keyCode === Keys.SPACE)) {
+          this.restart();
+        }
         this.nextKey = e.keyCode;
       }
     });
@@ -69,7 +86,8 @@ export default class Game {
       this.checkKey();
 
       if (this.snake.move(this.settings.width - 1, this.settings.height - 1)) {
-        // this.emit("over", this._score);
+        this.isGameOver = true;
+        alert("Game over!\npress space or enter to refresh the game.");
         return;
       }
 
@@ -88,16 +106,24 @@ export default class Game {
 
     switch (this.nextKey) {
       case Keys.ARROW_LEFT:
-        this.snake.direction = Direction.LEFT;
+        if (this.snake.direction != Direction.RIGHT) {
+          this.snake.direction = Direction.LEFT;
+        }
         break;
       case Keys.ARROW_UP:
-        this.snake.direction = Direction.UP;
+        if (this.snake.direction != Direction.DOWN) {
+          this.snake.direction = Direction.UP;
+        }
         break;
       case Keys.ARROW_RIGHT:
-        this.snake.direction = Direction.RIGHT;
+        if (this.snake.direction != Direction.LEFT) {
+          this.snake.direction = Direction.RIGHT;
+        }
         break;
       case Keys.ARROW_DOWN:
-        this.snake.direction = Direction.DOWN;
+        if (this.snake.direction != Direction.UP) {
+          this.snake.direction = Direction.DOWN;
+        }
         break;
     }
 
@@ -107,7 +133,8 @@ export default class Game {
   private checkFoodCollision(): void {
     if (this.snake.head.equals(this.food.position)) {
       this.snake.eat(this.food);
-      // this.emit("score", ++this._score);
+      this._score += 100;
+      this.scoreElement.innerHTML = this._score.toString();
       this.placeFood();
     }
   }

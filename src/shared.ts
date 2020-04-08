@@ -6,6 +6,8 @@ export const Generate = (min: number, max: number): number => {
 };
 
 export enum Keys {
+  ENTER = 13,
+  SPACE = 32,
   ARROW_LEFT = 37,
   ARROW_UP = 38,
   ARROW_RIGHT = 39,
