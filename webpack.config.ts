@@ -1,10 +1,14 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+// need ts-node for run this file
 
-module.exports = {
+import * as path from "path";
+import * as htmlWebpackPlugin from "html-webpack-plugin";
+import * as webpack from "webpack";
+const environment = !process.env.NODE_ENV ? "development" : "production";
+
+const config: webpack.Configuration = {
   entry: "./index.ts",
   devtool: "inline-source-map",
-  mode: "development",
+  mode: environment,
   module: {
     rules: [
       {
@@ -30,13 +34,15 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
   },
   plugins: [
-    new HtmlWebpackPlugin({
+    new htmlWebpackPlugin({
       template: "./index.html",
     }),
   ],
   devServer: {
     contentBase: path.join(__dirname, "dist"),
     compress: true,
-    port: 9000,
+    port: 1111,
   },
 };
+
+export default config;
